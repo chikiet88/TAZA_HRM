@@ -15,6 +15,12 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 type : 'basic',
                 icon : 'heroicons_outline:clipboard-check',
                 link : '/wellcome/gioithieu'
+            },            {
+                id   : 'wellcome.cauhoi',
+                title: 'Câu Hỏi Thường Gặp',
+                type : 'basic',
+                icon : 'heroicons_outline:clipboard-check',
+                link : '/wellcome/cauhoi'
             }
         ]
     },

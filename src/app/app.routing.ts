@@ -77,6 +77,7 @@ export const appRoutes: Route[] = [
             // Wellcome
             {path: 'wellcome', children: [
                 {path: 'gioithieu', loadChildren: () => import('app/modules/admin/wellcome/giothieu/gioithieu.module').then(m => m.GioithieuModule)},
+                {path: 'cauhoi', loadChildren: () => import('app/modules/admin/wellcome/cauhoi/cauhoi.module').then(m => m.CauhoiModule)},
 
             ]},
             // Dashboards
