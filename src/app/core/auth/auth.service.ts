@@ -3,10 +3,15 @@ import { HttpClient } from '@angular/common/http';
 import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
+import { collectExternalReferences } from '@angular/compiler';
+import Utf8 from 'crypto-js/enc-utf8';
+import { HmacSHA256 } from 'crypto-js';
+import Base64 from 'crypto-js/enc-base64';
 
 @Injectable()
 export class AuthService
 {
+    private readonly _secret: any;
     private _authenticated: boolean = false;
 
     /**
@@ -14,9 +19,11 @@ export class AuthService
      */
     constructor(
         private _httpClient: HttpClient,
-        private _userService: UserService
+        private _userService: UserService,
+        
     )
     {
+        this._secret = 'YOUR_VERY_CONFIDENTIAL_SECRET_FOR_SIGNING_JWT_TOKENS!!!';
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -60,6 +67,47 @@ export class AuthService
         return this._httpClient.post('api/auth/reset-password', password);
     }
 
+    private _base64url(source: any): string
+    {
+        // Encode in classical base64
+        let encodedSource = Base64.stringify(source);
+
+        // Remove padding equal characters
+        encodedSource = encodedSource.replace(/=+$/, '');
+
+        // Replace characters according to base64url specifications
+        encodedSource = encodedSource.replace(/\+/g, '-');
+        encodedSource = encodedSource.replace(/\//g, '_');
+
+        // Return the base64 encoded string
+        return encodedSource;
+    }
+
+    private _generateJWTToken(idUser:number): string
+    {
+        const header = {
+            alg: 'HS256',
+            typ: 'JWT'
+        };
+        const date = new Date();
+        const iat = Math.floor(date.getTime() / 1000);
+        const exp = Math.floor((date.setDate(date.getDate() + 7)) / 1000);
+        const payload = {
+            iat: iat,
+            iss: 'idUser:'+idUser,
+            exp: exp
+        };
+        const stringifiedHeader = Utf8.parse(JSON.stringify(header));
+        const encodedHeader = this._base64url(stringifiedHeader);
+        const stringifiedPayload = Utf8.parse(JSON.stringify(payload));
+        const encodedPayload = this._base64url(stringifiedPayload);
+        let signature: any = encodedHeader + '.' + encodedPayload;
+        signature = HmacSHA256(signature, this._secret);
+        signature = this._base64url(signature);
+        return encodedHeader + '.' + encodedPayload + '.' + signature;
+    }
+
+
     /**
      * Sign in
      *
@@ -73,22 +121,26 @@ export class AuthService
             return throwError('User is already logged in.');
         }
 
-        return this._httpClient.post('api/auth/sign-in', credentials).pipe(
+        return this._httpClient.get(`https://tazagroup.vn/index.php?option=com_users&task=user.loginAjax&username=${credentials.email}&password=${credentials.password}&format=json`).pipe(
             switchMap((response: any) => {
-
-                // Store the access token in the local storage
-                this.accessToken = response.accessToken;
-
-                // Set the authenticated flag to true
-                this._authenticated = true;
-
-                // Store the user on the user service
-                this._userService.user = response.user;
-
-                // Return a new observable with the response
+              console.log(response);
+              if(response.loggedIn!=0)
+              {
+              this.accessToken = this._generateJWTToken(response.User.id);
+              this._authenticated = true;
+              this._userService.user = response.User;
                 return of(response);
+              }
             })
-        );
+        );   
+        // return this._httpClient.post('api/auth/sign-in', credentials).pipe(
+        //     switchMap((response: any) => {
+        //         this.accessToken = response.accessToken;
+        //         this._authenticated = true;
+        //         this._userService.user = response.user;
+        //         return of(response);
+        //     })
+        // );
     }
 
     /**

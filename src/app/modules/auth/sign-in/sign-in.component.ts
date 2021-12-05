@@ -45,7 +45,7 @@ export class AuthSignInComponent implements OnInit
     {
         // Create the form
         this.signInForm = this._formBuilder.group({
-            email     : ['hughes.brian@company.com', [Validators.required, Validators.email]],
+            email     : ['admin', [Validators.required]],
             password  : ['admin', Validators.required],
             rememberMe: ['']
         });
@@ -85,10 +85,9 @@ export class AuthSignInComponent implements OnInit
 
                     // Navigate to the redirect url
                     this._router.navigateByUrl(redirectURL);
-
                 },
                 (response) => {
-
+                    console.log(response);
                     // Re-enable the form
                     this.signInForm.enable();
 

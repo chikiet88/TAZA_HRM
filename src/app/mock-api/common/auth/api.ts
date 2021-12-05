@@ -13,6 +13,8 @@ export class AuthMockApi
 {
     private readonly _secret: any;
     private _user: any = userData;
+    http: any;
+    results: any;
 
     /**
      * Constructor
@@ -64,10 +66,9 @@ export class AuthMockApi
         // -----------------------------------------------------------------------------------------------------
         this._fuseMockApiService
             .onPost('api/auth/sign-in', 1500)
-            .reply(({request}) => {
-
-                // Sign in successful
-                if ( request.body.email === 'hughes.brian@company.com' && request.body.password === 'admin' )
+            .reply(({request}) => { 
+                
+      if ( request.body.email === 'admin' && request.body.password === 'admin' )
                 {
                     return [
                         200,
@@ -79,11 +80,24 @@ export class AuthMockApi
                     ];
                 }
 
-                // Invalid credentials
-                return [
-                    404,
-                    false
-                ];
+                // // Sign in successful
+                // if ( request.body.email === 'hughes.brian@company.com' && request.body.password === 'admin' )
+                // {
+                //     return [
+                //         200,
+                //         {
+                //             user       : cloneDeep(this._user),
+                //             accessToken: this._generateJWTToken(),
+                //             tokenType  : 'bearer'
+                //         }
+                //     ];
+                // }
+
+                // // Invalid credentials
+                // return [
+                //     404,
+                //     false
+                // ];
             });
 
         // -----------------------------------------------------------------------------------------------------
