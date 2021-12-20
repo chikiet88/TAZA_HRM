@@ -25,6 +25,28 @@ export const defaultNavigation: FuseNavigationItem[] = [
         ]
     },
     {
+        id      : 'daotao',
+        title   : 'Đào Tạo',
+        subtitle: '',
+        type    : 'group',
+        icon    : 'heroicons_outline:home',
+        children: [
+            {
+                id   : 'daotao.dashboard',
+                title: 'Dashboard',
+                type : 'basic',
+                icon : 'dashboard',
+                link : '/daotao/dashboard'
+            },            {
+                id   : 'daotao.tailieunguon',
+                title: 'Tài Liệu Nguồn',
+                type : 'basic',
+                icon : 'heroicons_outline:document-text',
+                link : '/daotao/tailieunguon'
+            }
+        ]
+    },
+    {
         id      : 'dashboards',
         title   : 'Dashboards',
         subtitle: 'Unique dashboard designs',
@@ -1175,6 +1197,14 @@ export const compactNavigation: FuseNavigationItem[] = [
         icon    : 'heroicons_outline:home',
         children: [] // This will be filled from defaultNavigation so we don't have to manage multiple sets of the same navigation
     },  
+    {
+        id      : 'daotao',
+        title   : 'Đào Tạo',
+        tooltip : 'Đào Tạo',
+        type    : 'aside',
+        icon    : 'heroicons_outline:academic-cap',
+        children: [] // This will be filled from defaultNavigation so we don't have to manage multiple sets of the same navigation
+    },   
     {
         id      : 'dashboards',
         title   : 'Dashboards',

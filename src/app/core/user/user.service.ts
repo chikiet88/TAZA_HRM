@@ -46,9 +46,11 @@ export class UserService
      */
     get(): Observable<User>
     {
-        return this._httpClient.get<User>('api/common/user').pipe(
+        return this._httpClient.get<any>('https://tazagroup.vn/api/index.php/v1/users/72').pipe(
             tap((user) => {
-                this._user.next(user);
+                this._user.next(user.data.attributes);
+                console.log(user.data.attributes);
+                console.log(this._user);
             })
         );
     }

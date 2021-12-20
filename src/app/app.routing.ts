@@ -80,6 +80,11 @@ export const appRoutes: Route[] = [
                 {path: 'cauhoi', loadChildren: () => import('app/modules/admin/wellcome/cauhoi/cauhoi.module').then(m => m.CauhoiModule)},
 
             ]},
+            {path: 'daotao', children: [
+                {path: 'dashboard', loadChildren: () => import('app/modules/admin/wellcome/giothieu/gioithieu.module').then(m => m.GioithieuModule)},
+                {path: 'tailieunguon', loadChildren: () => import('app/modules/admin/daotao/tailieunguon/tailieunguon.module').then(m => m.TailieunguonModule)},
+
+            ]},
             // Dashboards
             {path: 'dashboards', children: [
                 {path: 'project', loadChildren: () => import('app/modules/admin/dashboards/project/project.module').then(m => m.ProjectModule)},

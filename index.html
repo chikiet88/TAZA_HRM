@@ -1,0 +1,157 @@
+$scope.CreateDethi = function (dulieu) {
+    var data = {
+      "Tendethi": dulieu.Chude,
+      "idChude": dulieu.idChude,
+      "idCH": JSON.stringify(dulieu.idCH),
+      "idDuyet": JSON.stringify(dulieu.idDuyet),
+      "Ghichu": dulieu.Ghichu,
+      "idTao": $scope.idUser
+    };
+    console.log(data);
+    $http.post("https://tazagroup.vn/api/index.php/v1/hrms/dethis", data, {
+        headers: $scope.headers
+      })
+      .then(function (res) {
+        console.log(res);
+        $scope.OninitDethi();
+        Thongbao(0, 'Tạo Đề Thi Thành Công');
+      }, function (res) {
+        console.log(res);
+        Thongbao(1, geterror(res));
+      });
+  }
+  $scope.ReadDethi = function () {
+    $http.get("https://tazagroup.vn/api/index.php/v1/hrms/dethis?filter[published]=0&page[offset]=0&page[limit]=*", {
+        headers: $scope.headers
+      })
+      .then(function (res) {
+        $scope.RDethi = [];
+        $scope.RADethi = [];
+        $scope.Dethigoc = [];
+        var data = getdata(res.data.data);
+        angular.forEach(data, function (v) {
+          v.idDuyet = JSON.parse(v.idDuyet) || [];
+          v.idCH = JSON.parse(v.idCH) || {};
+          v.Ngaytao = new Date(v.Ngaytao);
+          v.Trangthai = v.Trangthai.toString();
+          v.Ngaytao = new Date(v.Ngaytao);
+          v.Tendethi = v.Tenchude + '- Đề Số ' + v.ordering;
+          if (v.Trangthai === 2) {
+            $scope.RDethi.push(v);
+          }
+          $scope.RADethi.push(v);
+          $scope.Dethigoc.push(v);
+        });
+        // $scope.FidTLCauhoi = $filter('unique')($scope.RACauhoi, 'idTL');    
+        ($scope.localStorage.TabDT == 0) ? $scope.Phantrang($scope.RDethi, $scope.localStorage.SLitem, $scope.localStorage.Chontrang): $scope.Phantrang($scope.RADethi, $scope.localStorage.SLitem, $scope.localStorage.Chontrang);
+      });
+
+  }
+  $scope.UpdateDethi = function (dulieu) {
+    var data = {
+      "Tendethi": dulieu.Chude,
+      "idChude": dulieu.idChude,
+      "idCH": JSON.stringify(dulieu.idCH),
+      "idDuyet": JSON.stringify(dulieu.idDuyet),
+      "Ghichu": dulieu.Ghichu,
+    };
+    console.log(data);
+    $http.patch("https://tazagroup.vn/api/index.php/v1/hrms/dethis/" + dulieu.id, data, {
+        headers: $scope.headers
+      })
+      .then(function (res) {
+        console.log(res);
+        Thongbao(0, "Cập Nhật Thành Công");
+        $scope.OninitDethi();
+      }, function (res) {
+        console.log(res);
+      });
+  }
+  $scope.DeleteDethi = function (dulieu) {
+    var data = {
+      "published": 1
+    };
+    $http.patch("https://tazagroup.vn/api/index.php/v1/hrms/dethis/" + dulieu.id, data, {
+        headers: $scope.headers
+      })
+      .then(function (res) {
+        console.log(res);
+        Thongbao(0, "Xóa Thành Công");
+        $scope.OninitDethi();
+      }, function (res) {
+        console.log(res);
+      });
+  } 
+  $scope.resetDethi = function () {
+    $scope.OninitDethi();
+  }
+  $scope.addDethi = function () {
+    $scope.Dethi.CRUD = 1;
+  }
+  $scope.editDethi = function (data) {
+    $scope.ResetCauhoi();
+    $timeout(function () {
+      $scope.Dethi = data;
+      $scope.Dethi.CRUD = 2;
+      //      console.log(data);
+      angular.forEach(data.idCH, (v) => {
+        var x = $scope.Cauhoigoc.find(result => result.id === v.idCH);
+        x.Diem = v.Diem;
+        $scope.RCHDT.push(x);
+        $scope.RACauhoi = $scope.RACauhoi.filter(item => item.id !== v.idCH);
+      });
+    }, 500)
+
+  }
+  $scope.removeDethi = function (data) {
+    $scope.Dethi = data;
+    $scope.Dethi.CRUD = 0;
+  }
+  $scope.Locdethi = function (data, t) {
+    $scope.Store('CDDTActive', t);
+    //console.log(t);  
+    $scope.RADethi = $scope.Dethigoc;
+    //console.log($scope.RACauhoi);  
+    var x = [];
+    x.push(data);
+    var y = flatten(x).map(el => el.id);
+    var Loc = [];
+    angular.forEach(y, function (v1) {
+      angular.forEach($scope.RADethi, function (v2) {
+        if (parseInt(v2.idChude) == parseInt(v1)) {
+          Loc.push(v2);
+        }
+      });
+    });
+    $scope.RADethi = Loc;
+    $scope.Store('CDDTHientai', data);
+
+  }
+  $scope.ResetDethi = function () {
+    $scope.RemoveStorage('CDDTHientai');
+    $scope.RemoveStorage('CDDTActive');
+    $scope.ReadDethi();
+
+  }
+  $scope.UpdateTTDuyetDT = function (id, Trangthai) {
+    var data = {
+      "Trangthai": Trangthai,
+    };
+    console.log(data);
+    $http.patch("https://tazagroup.vn/api/index.php/v1/hrms/dethis/" + id, data, {
+        headers: $scope.headers
+      })
+      .then(function (res) {
+        console.log(res);
+        Thongbao(0, "Chuyển Trạng Thái Thành Công");
+        $scope.OninitDethi();
+      }, function (res) {
+        console.log(res);
+        Thongbao(1, geterror(res));
+      });
+  }
+  $scope.selectAll = function () {
+    angular.forEach($scope.checked, function (item) {
+      item = $scope.selectedAll;
+    });
+  };
